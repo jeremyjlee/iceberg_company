@@ -155,23 +155,17 @@ body {
 .berg { display: block; }
 .berg--mass { width: clamp(320px, 56vw, 620px); height: auto; }
 
-/* Gold waterline / surface (ANIMATION_SPEC §4.2) */
-.layer-waterline { z-index: 4; }
-.waterline {
-  width: min(78vw, 1100px);
-  height: 1px;
-  transform: translateY(32vh);
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(207, 196, 140, 0.0) 6%,
-    var(--gold) 30%,
-    var(--gold-light) 50%,
-    var(--gold) 70%,
-    rgba(207, 196, 140, 0.0) 94%,
-    transparent 100%
-  );
-  box-shadow: 0 0 14px 1px rgba(207, 196, 140, 0.35);
+/* Gold surface line — straight waterline that morphs into the iceberg rim.
+   The path `d` is driven by JS in viewport-% coordinates (ANIMATION_SPEC §4.2). */
+.surface-line {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 4;                 /* above the mass, below mission/wordmark */
+  pointer-events: none;
+  overflow: visible;
+  filter: drop-shadow(0 0 5px rgba(207, 196, 140, 0.45));   /* precious glow */
 }
 
 /* =====================================================================
@@ -325,14 +319,6 @@ body {
   to   { transform: translateX(3vw)  rotate(11deg); }
 }
 
-.motes {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  opacity: 0;            /* JS fades canvas opacity with depth */
-  pointer-events: none;
-}
-
 .vignette {
   position: absolute;
   inset: 0;
@@ -365,7 +351,7 @@ html.js .mission__body { opacity: 0; }
 
 /* =====================================================================
    Reduced motion (ANIMATION_SPEC §8): a calm, naturally-scrolling layout.
-   No pin, no scrub, no parallax, no gleam, no motes.
+   No pin, no scrub, no parallax, no gleam.
    ===================================================================== */
 
 html.reduced .scroll-track { height: auto; }
@@ -383,8 +369,7 @@ html.reduced .center {
 }
 html.reduced .bg,
 html.reduced .layer-mass,
-html.reduced .layer-waterline,
-html.reduced .motes,
+html.reduced .surface-line,
 html.reduced .scroll-cue { display: none; }
 
 html.reduced .layer-wordmark { min-height: 60vh; }
@@ -418,9 +403,9 @@ a, .footer__text { transition: color 200ms ease, opacity 200ms ease; }
 
 @media (max-width: 640px) {
   .scroll-track { height: 280vh; }
-  .waterline { width: 86vw; }
   .berg--mass { width: 78vw; }
   .shaft--3 { display: none; }       /* thin the atmosphere on mobile */
   .shaft { filter: blur(14px); }     /* cheaper blur */
   .grain { display: none; }          /* drop the blend-mode overlay (costly) */
+  .surface-line { filter: none; }    /* drop the glow filter on mobile */
 }

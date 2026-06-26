@@ -38,13 +38,26 @@
           <span class="shaft shaft--3"></span>
         </div>
 
-        <!-- Marine motes (below water only) -->
-        <canvas class="motes" id="motes" aria-hidden="true"></canvas>
-
-        <!-- The gold waterline / surface -->
-        <div class="center layer-waterline" aria-hidden="true">
-          <div class="anim waterline" data-el="waterline"></div>
-        </div>
+        <!-- The gold surface line: starts as a straight waterline, then morphs
+             into the iceberg's jagged top contour and rides it up (JS sets `d`).
+             viewBox is in viewport-% (preserveAspectRatio none); the stroke is
+             non-scaling so it stays a crisp gold hairline. -->
+        <svg class="surface-line" id="surface" viewBox="0 0 100 100"
+             preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <!-- userSpaceOnUse (viewBox x: 0→100) so a perfectly flat line still
+                 paints — an objectBoundingBox gradient degenerates at zero height -->
+            <linearGradient id="lineGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="100" y2="0">
+              <stop offset="0"    stop-color="#A99E69" stop-opacity="0" />
+              <stop offset="0.12" stop-color="#A99E69" stop-opacity="0.9" />
+              <stop offset="0.5"  stop-color="#CFC48C" />
+              <stop offset="0.88" stop-color="#A99E69" stop-opacity="0.9" />
+              <stop offset="1"    stop-color="#A99E69" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+          <path id="surfacePath" fill="none" stroke="url(#lineGrad)" stroke-width="1.5"
+                vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
 
         <!-- Iceberg: below-water mass (the reveal) -->
         <div class="center layer-mass" aria-hidden="true">
@@ -82,9 +95,7 @@
                 <path d="M528 44 L300 360" stroke="#7c7345" stroke-width="0.75" opacity="0.28" />
                 <path d="M34 28 L300 360" stroke="#7c7345" stroke-width="0.75" opacity="0.28" />
               </g>
-              <!-- bright gold rim along the top shoulder (where it meets the surface) -->
-              <path d="M34 28 L150 12 L214 34 L300 8 L386 30 L470 18 L528 44"
-                    stroke="#cfc48c" stroke-width="1.75" opacity="0.85" stroke-linejoin="round" />
+              <!-- (gold rim is drawn by the morphing #surface line, which rides this shoulder) -->
             </svg>
           </div>
         </div>

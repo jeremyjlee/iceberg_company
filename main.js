@@ -61,7 +61,8 @@
   // cache the animated elements
   function el(name) { return document.querySelector('[data-el="' + name + '"]'); }
   var $mass      = el("mass");
-  var $waterline = el("waterline");
+  var $surface   = document.getElementById("surface");      // the gold line SVG
+  var $surfPath  = document.getElementById("surfacePath");  // its path
   var $wordmark  = el("wordmark");
   var $lockup    = document.querySelector(".lockup");
   var $eyebrow   = el("eyebrow");
@@ -70,7 +71,13 @@
   var $footer    = el("footer");
 
   var vh = window.innerHeight;
-  function onResize() { vh = window.innerHeight; }
+  // mirrors the .berg--mass width in styles.css (clamp, with the mobile override)
+  function massWidth() {
+    var w = window.innerWidth;
+    return w <= 640 ? 0.78 * w : Math.max(320, Math.min(0.56 * w, 620));
+  }
+  var massW = massWidth();
+  function onResize() { vh = window.innerHeight; massW = massWidth(); }
   window.addEventListener("resize", onResize, { passive: true });
 
   /* ---------- background navy descent (DESIGN_SYSTEM §2.1) ----------
@@ -84,66 +91,16 @@
   ];
   var BG_ZONES = [[0, 0.25], [0.25, 0.45], [0.45, 0.70], [0.70, 1.0]];
 
-  var $motes = document.getElementById("motes");
   var coarse = window.matchMedia("(pointer: coarse)").matches;   // touch / mobile
 
-  /* =====================================================================
-     Marine motes — sparse pale-gold flecks, below water only (§4.9)
-     ===================================================================== */
-  var motes = (function () {
-    var canvas = document.getElementById("motes");
-    var ctx = canvas.getContext("2d");
-    var dpr = Math.min(window.devicePixelRatio || 1, 2);
-    var W = 0, H = 0;
-    var isMobile = window.matchMedia("(max-width: 640px)").matches;
-    var COUNT = isMobile ? 22 : 46;
-    var particles = [];
-
-    function size() {
-      W = canvas.clientWidth; H = canvas.clientHeight;
-      canvas.width = Math.floor(W * dpr);
-      canvas.height = Math.floor(H * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    function seed() {
-      particles.length = 0;
-      for (var i = 0; i < COUNT; i++) {
-        var far = Math.random() < 0.5;               // two parallax depths
-        particles.push({
-          x: Math.random() * W,
-          y: Math.random() * H,
-          r: far ? 0.7 + Math.random() * 0.7 : 1.1 + Math.random() * 1.2,
-          spd: (far ? 6 : 12) + Math.random() * 10,  // px/sec downward drift
-          sway: 0.3 + Math.random() * 0.6,
-          phase: Math.random() * Math.PI * 2,
-          baseA: far ? 0.06 + Math.random() * 0.03 : 0.08 + Math.random() * 0.04
-        });
-      }
-    }
-    size(); seed();
-    window.addEventListener("resize", function () { size(); seed(); }, { passive: true });
-
-    var last = performance.now();
-    return {
-      density: 0,   // 0→1, set from p
-      render: function (now) {
-        var dt = Math.min((now - last) / 1000, 0.05); last = now;
-        ctx.clearRect(0, 0, W, H);
-        if (this.density <= 0.001) return;
-        for (var i = 0; i < particles.length; i++) {
-          var p = particles[i];
-          p.y += p.spd * dt;
-          p.phase += dt * p.sway;
-          if (p.y - p.r > H) { p.y = -p.r; p.x = Math.random() * W; }
-          var x = p.x + Math.sin(p.phase) * 8;
-          ctx.beginPath();
-          ctx.arc(x, p.y, p.r, 0, Math.PI * 2);
-          ctx.fillStyle = "rgba(207, 196, 140, " + (p.baseA * this.density).toFixed(3) + ")";
-          ctx.fill();
-        }
-      }
-    };
-  })();
+  /* ---------- gold surface line: straight waterline -> iceberg rim ----------
+     7 control points morph between a wide flat line (FLAT_*) and the iceberg's
+     top-shoulder profile (SH_F* = fractions of the mass SVG's viewBox), whose
+     live screen position we read from the mass's bounding rect each frame. */
+  var FLAT_X = [6, 20, 35, 50, 65, 80, 94];   // %vw, wide
+  var FLAT_Y = 82;                             // %vh, calm surface — just above the scroll cue
+  var SH_FX  = [0.061, 0.268, 0.382, 0.536, 0.689, 0.839, 0.943];
+  var SH_FY  = [0.040, 0.017, 0.049, 0.011, 0.043, 0.026, 0.063];
 
   /* =====================================================================
      The frame: compute p, drive everything
@@ -158,9 +115,6 @@
     var p = total > 0 ? clamp01(-rectTop / total) : 0;
     if (forcedP !== null) p = forcedP;
 
-    // ambient layers (motes drift) need every frame; scene only on change
-    motes.render(now);
-
     if (Math.abs(p - lastP) > 0.0001) {
       lastP = p;
       stage.style.setProperty("--p", p.toFixed(4));
@@ -170,18 +124,42 @@
         bgEls[bi].style.opacity = (1 - sub(p, BG_ZONES[bi][0], BG_ZONES[bi][1])).toFixed(3);
       }
 
-      /* --- gold waterline / surface (§4.2): deliberate, eased threshold pass --- */
-      var wlT = easeInOut(sub(p, 0.08, 0.30));               // --ease-surface across the crossing
-      var wlY = 32 + wlT * (-12 - 32);                       // 32vh → -12vh, eased
-      $waterline.style.transform = "translateY(" + wlY.toFixed(2) + "vh)";
-      $waterline.style.opacity = (1 - sub(p, 0.22, 0.30)).toFixed(3);
-
       /* --- iceberg mass (§4.4): the reveal --- */
       var massY  = trackAnchors(p, [[0.30, 70], [0.40, 34], [0.62, 0], [0.88, -18]]);
       var massSc = trackAnchors(p, [[0.30, 1], [0.40, 1.04], [0.62, 1.15], [0.88, 1.18]]);
       var massOp = trackAnchors(p, [[0.30, 0], [0.40, 1], [0.62, 1], [0.88, 0.25], [1, 0.18]]);
       $mass.style.transform = "translateY(" + massY + "vh) scale(" + massSc.toFixed(3) + ")";
       $mass.style.opacity = massOp;
+
+      /* --- gold surface line: straight waterline → iceberg rim (§4.2).
+             The shoulder's screen position is derived analytically from the mass
+             transform (no getBoundingClientRect → no 1-frame lag, no reflow).
+             Decoupled so the line never lags the rising mass:
+               • baseline rides the shoulder's average height (ride)
+               • jaggedness + width-narrowing grow separately (jag / wid) */
+      var iw = window.innerWidth || 1;
+      var massH = massW * (700 / 560);
+      var bL = iw / 2 - (massW * massSc) / 2;                 // mass box left  (px)
+      var bT = vh / 2 + (massY / 100) * vh - (massH * massSc) / 2;  // mass box top (px)
+      var jx = [], jy = [], avgY = 0;
+      for (var li = 0; li < 7; li++) {
+        jx[li] = (bL + SH_FX[li] * massW * massSc) / iw * 100;
+        jy[li] = (bT + SH_FY[li] * massH * massSc) / vh * 100;
+        avgY += jy[li];
+      }
+      avgY /= 7;
+      var ride = easeInOut(sub(p, 0.31, 0.44));              // flat → ride the shoulder
+      var jag  = easeInOut(sub(p, 0.33, 0.52));              // bumps grow
+      var wid  = easeInOut(sub(p, 0.31, 0.50));              // narrow to the iceberg
+      var baseY = FLAT_Y + (avgY - FLAT_Y) * ride;
+      var d = "";
+      for (li = 0; li < 7; li++) {
+        var x = FLAT_X[li] + (jx[li] - FLAT_X[li]) * wid;
+        var y = baseY + (jy[li] - avgY) * jag;
+        d += (li ? "L" : "M") + x.toFixed(2) + " " + y.toFixed(2) + " ";
+      }
+      $surfPath.setAttribute("d", d);
+      $surface.style.opacity = (1 - sub(p, 0.88, 1.0) * 0.85).toFixed(3);
 
       /* --- wordmark: gleam, then drift-up dissolve (§4.5) --- */
       var gleam = easeInOut(sub(p, 0.18, 0.30));            // 0→1 sweep
@@ -211,10 +189,6 @@
 
       /* --- gold light shafts (§4.8) --- */
       shafts.style.opacity = trackAnchors(p, [[0.18, 0], [0.32, 0.18], [0.62, 0.12], [0.90, 0.06], [1, 0.05]]).toFixed(3);
-
-      /* --- marine motes density (§4.9) --- */
-      motes.density = clamp01(sub(p, 0.32, 0.55));
-      $motes.style.opacity = motes.density > 0 ? 1 : 0;
 
       /* --- vignette (§4.12) --- */
       vignette.style.opacity = (clamp01(p) * 0.5).toFixed(3);
