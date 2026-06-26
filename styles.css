@@ -137,14 +137,11 @@ body {
    Iceberg
    ===================================================================== */
 
-.layer-tip  { z-index: 3; }
 .layer-mass { z-index: 2; }
 
-.layer-tip .anim  { transform: translateY(-20vh); }   /* rest: upper area, above the lockup */
 .layer-mass .anim { transform: translateY(70vh); opacity: 0; }
 
 .berg { display: block; }
-.berg--tip  { width: clamp(150px, 26vw, 300px); height: auto; }
 .berg--mass { width: clamp(320px, 56vw, 620px); height: auto; }
 
 /* Gold waterline / surface (ANIMATION_SPEC §4.2) */
@@ -176,8 +173,7 @@ body {
   width: min(680px, 86vw);
   padding: 0 var(--pad-side);
   text-align: center;
-  /* settles a touch below true center so it sits "in the deep" */
-  transform: translateY(4vh);
+  /* the grid keeps the whole block optically centred in the deep */
 }
 
 .mission__eyebrow {
@@ -221,6 +217,12 @@ body {
   bottom: clamp(28px, 6vh, 64px);
   transform: translateX(-50%);
   z-index: 7;
+  pointer-events: none;
+  /* outer opacity is driven by JS (scroll progress) so it reliably fades out;
+     the ambient bob lives on the inner element below. */
+  transition: opacity 400ms ease;
+}
+.scroll-cue__bob {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -241,8 +243,8 @@ body {
   background: linear-gradient(180deg, var(--gold), transparent);
 }
 @keyframes cue-bob {
-  from { transform: translate(-50%, 0);   opacity: 0.55; }
-  to   { transform: translate(-50%, 6px); opacity: 1; }
+  from { transform: translateY(0);   opacity: 0.55; }
+  to   { transform: translateY(6px); opacity: 1; }
 }
 
 /* =====================================================================
@@ -366,7 +368,6 @@ html.reduced .center {
   min-height: 100vh;
   padding: 12vh var(--pad-side);
 }
-html.reduced .layer-tip,
 html.reduced .layer-mass,
 html.reduced .layer-waterline,
 html.reduced .motes,

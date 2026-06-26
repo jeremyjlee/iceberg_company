@@ -32,32 +32,6 @@
         <!-- Marine motes (below water only) -->
         <canvas class="motes" id="motes" aria-hidden="true"></canvas>
 
-        <!-- Iceberg: above-water tip -->
-        <div class="center layer-tip" aria-hidden="true">
-          <div class="anim" data-el="tip">
-            <svg class="berg berg--tip" viewBox="0 0 300 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="tipFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0" stop-color="#3a4869" />
-                  <stop offset="1" stop-color="#27324c" />
-                </linearGradient>
-              </defs>
-              <!-- craggy peak resting on the waterline (y≈138) -->
-              <path d="M42 138 L104 86 L132 100 L150 26 L178 74 L206 92 L258 138 Z"
-                    fill="url(#tipFill)" />
-              <!-- gold facet hairlines -->
-              <g stroke-linecap="round" opacity="0.55">
-                <path d="M150 26 L132 100" stroke="#7c7345" stroke-width="1" />
-                <path d="M150 26 L178 74" stroke="#a99e69" stroke-width="1" />
-                <path d="M104 86 L150 26" stroke="#a99e69" stroke-width="0.75" opacity="0.7" />
-                <path d="M178 74 L206 92" stroke="#7c7345" stroke-width="0.75" />
-              </g>
-              <!-- bright gold rim at the waterline edge -->
-              <path d="M42 138 L258 138" stroke="#cfc48c" stroke-width="1.5" opacity="0.9" stroke-linecap="round" />
-            </svg>
-          </div>
-        </div>
-
         <!-- The gold waterline / surface -->
         <div class="center layer-waterline" aria-hidden="true">
           <div class="anim waterline" data-el="waterline"></div>
@@ -135,10 +109,12 @@
           </div>
         </div>
 
-        <!-- Scroll cue (only at the very top) -->
+        <!-- Scroll cue (only at the very top; fades out on first scroll) -->
         <div class="scroll-cue" id="cue" aria-hidden="true">
-          <span class="scroll-cue__label">Scroll</span>
-          <span class="scroll-cue__line"></span>
+          <span class="scroll-cue__bob">
+            <span class="scroll-cue__label">Scroll</span>
+            <span class="scroll-cue__line"></span>
+          </span>
         </div>
 
         <!-- Quiet footer label (the single permitted contact line) -->

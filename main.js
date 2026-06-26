@@ -60,7 +60,6 @@
 
   // cache the animated elements
   function el(name) { return document.querySelector('[data-el="' + name + '"]'); }
-  var $tip       = el("tip");
   var $mass      = el("mass");
   var $waterline = el("waterline");
   var $wordmark  = el("wordmark");
@@ -187,12 +186,6 @@
       var wlY = 32 + wlT * (-12 - 32);                       // 32vh → -12vh, eased
       $waterline.style.transform = "translateY(" + wlY.toFixed(2) + "vh)";
       $waterline.style.opacity = (1 - sub(p, 0.22, 0.30)).toFixed(3);
-
-      /* --- iceberg tip (§4.3): rest -20vh, rises and exits --- */
-      var tipY = trackAnchors(p, [[0, -20], [0.30, -50], [0.46, -84]]);
-      var tipOp = 1 - sub(p, 0.30, 0.46);
-      $tip.style.transform = "translateY(" + tipY + "vh)";
-      $tip.style.opacity = tipOp;
 
       /* --- iceberg mass (§4.4): the reveal --- */
       var massY  = trackAnchors(p, [[0.30, 70], [0.40, 34], [0.62, 0], [0.88, -18]]);
