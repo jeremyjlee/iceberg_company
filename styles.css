@@ -62,10 +62,21 @@ body {
   height: 100vh;
   width: 100%;
   overflow: hidden;
-  /* default background; JS lerps this between the §2.1 stops */
-  background: linear-gradient(180deg, #1F2B48 0%, #1B2641 100%);
+  /* base colour behind the cross-faded layers (and the no-JS fallback) */
+  background: #1F2B48;
   isolation: isolate;
 }
+
+/* Background navy descent (DESIGN_SYSTEM §2.1) as stacked gradient layers.
+   JS cross-fades their opacity (compositor-only) instead of repainting a
+   full-screen gradient every frame — the key to smooth mobile scrolling. */
+.bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.bg-layer { position: absolute; inset: 0; will-change: opacity; }
+.bg-layer.s0 { background: linear-gradient(180deg, #1F2B48, #1B2641); }  /* surface   */
+.bg-layer.s1 { background: linear-gradient(180deg, #1A2440, #161F37); }  /* waterline */
+.bg-layer.s2 { background: linear-gradient(180deg, #141C32, #10182C); }  /* upper deep*/
+.bg-layer.s3 { background: linear-gradient(180deg, #0D1426, #0A1020); }  /* deep      */
+.bg-layer.s4 { background: linear-gradient(180deg, #080E1C, #060A16); }  /* abyss     */
 
 /* Each centered layer is a full-stage grid that places one element at center.
    The inner .anim carries the JS-driven transform/opacity. */
@@ -370,6 +381,7 @@ html.reduced .center {
   min-height: 100vh;
   padding: 12vh var(--pad-side);
 }
+html.reduced .bg,
 html.reduced .layer-mass,
 html.reduced .layer-waterline,
 html.reduced .motes,
@@ -408,5 +420,7 @@ a, .footer__text { transition: color 200ms ease, opacity 200ms ease; }
   .scroll-track { height: 280vh; }
   .waterline { width: 86vw; }
   .berg--mass { width: 78vw; }
-  .shaft--3 { display: none; }     /* thin the atmosphere on mobile */
+  .shaft--3 { display: none; }       /* thin the atmosphere on mobile */
+  .shaft { filter: blur(14px); }     /* cheaper blur */
+  .grain { display: none; }          /* drop the blend-mode overlay (costly) */
 }

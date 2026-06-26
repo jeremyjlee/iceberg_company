@@ -73,31 +73,19 @@
   function onResize() { vh = window.innerHeight; }
   window.addEventListener("resize", onResize, { passive: true });
 
-  /* ---------- background navy descent (DESIGN_SYSTEM §2.1) ---------- */
-  var STOPS = [
-    [0.00, [31, 43, 72], [27, 38, 65]],   // #1F2B48 / #1B2641  brand surface
-    [0.25, [26, 36, 64], [22, 31, 55]],   // #1A2440 / #161F37  waterline
-    [0.45, [20, 28, 50], [16, 24, 44]],   // #141C32 / #10182C  upper deep
-    [0.70, [13, 20, 38], [10, 16, 32]],   // #0D1426 / #0A1020  deep
-    [1.00, [8, 14, 28],  [6, 10, 22]]     // #080E1C / #060A16  abyss
+  /* ---------- background navy descent (DESIGN_SYSTEM §2.1) ----------
+     Stacked gradient layers, cross-faded by opacity (compositor-only) so we
+     never repaint a full-screen gradient on scroll. s4 (abyss) stays opaque. */
+  var bgEls = [
+    document.querySelector(".bg-layer.s0"),
+    document.querySelector(".bg-layer.s1"),
+    document.querySelector(".bg-layer.s2"),
+    document.querySelector(".bg-layer.s3")
   ];
-  function lerpRGB(a, b, t) {
-    return "rgb(" +
-      Math.round(a[0] + (b[0] - a[0]) * t) + "," +
-      Math.round(a[1] + (b[1] - a[1]) * t) + "," +
-      Math.round(a[2] + (b[2] - a[2]) * t) + ")";
-  }
-  function bgAt(p) {
-    for (var i = 0; i < STOPS.length - 1; i++) {
-      var s0 = STOPS[i], s1 = STOPS[i + 1];
-      if (p <= s1[0]) {
-        var t = (p - s0[0]) / (s1[0] - s0[0]);
-        return [lerpRGB(s0[1], s1[1], t), lerpRGB(s0[2], s1[2], t)];
-      }
-    }
-    var last = STOPS[STOPS.length - 1];
-    return [lerpRGB(last[1], last[1], 0), lerpRGB(last[2], last[2], 0)];
-  }
+  var BG_ZONES = [[0, 0.25], [0.25, 0.45], [0.45, 0.70], [0.70, 1.0]];
+
+  var $motes = document.getElementById("motes");
+  var coarse = window.matchMedia("(pointer: coarse)").matches;   // touch / mobile
 
   /* =====================================================================
      Marine motes — sparse pale-gold flecks, below water only (§4.9)
@@ -177,9 +165,10 @@
       lastP = p;
       stage.style.setProperty("--p", p.toFixed(4));
 
-      /* --- background navy descent (§4.1) --- */
-      var bg = bgAt(p);
-      stage.style.background = "linear-gradient(180deg," + bg[0] + " 0%," + bg[1] + " 100%)";
+      /* --- background navy descent (§4.1): cross-fade the stacked layers --- */
+      for (var bi = 0; bi < bgEls.length; bi++) {
+        bgEls[bi].style.opacity = (1 - sub(p, BG_ZONES[bi][0], BG_ZONES[bi][1])).toFixed(3);
+      }
 
       /* --- gold waterline / surface (§4.2): deliberate, eased threshold pass --- */
       var wlT = easeInOut(sub(p, 0.08, 0.30));               // --ease-surface across the crossing
@@ -212,20 +201,20 @@
       var s1 = easeEmerge(sub(p, 0.58, 0.74));
       $lead.style.opacity = s1.toFixed(3);
       $lead.style.transform = "translateY(" + ((1 - s1) * 28) + "px)";
-      $lead.style.filter = "blur(" + ((1 - s1) * 8).toFixed(2) + "px)";
+      if (!coarse) $lead.style.filter = "blur(" + ((1 - s1) * 8).toFixed(2) + "px)";
 
       /* --- mission sentence 2 (§4.7) --- */
       var s2 = easeEmerge(sub(p, 0.66, 0.84));
       $body.style.opacity = s2.toFixed(3);
       $body.style.transform = "translateY(" + ((1 - s2) * 20) + "px)";
-      $body.style.filter = "blur(" + ((1 - s2) * 6).toFixed(2) + "px)";
+      if (!coarse) $body.style.filter = "blur(" + ((1 - s2) * 6).toFixed(2) + "px)";
 
       /* --- gold light shafts (§4.8) --- */
       shafts.style.opacity = trackAnchors(p, [[0.18, 0], [0.32, 0.18], [0.62, 0.12], [0.90, 0.06], [1, 0.05]]).toFixed(3);
 
       /* --- marine motes density (§4.9) --- */
       motes.density = clamp01(sub(p, 0.32, 0.55));
-      document.getElementById("motes").style.opacity = motes.density > 0 ? 1 : 0;
+      $motes.style.opacity = motes.density > 0 ? 1 : 0;
 
       /* --- vignette (§4.12) --- */
       vignette.style.opacity = (clamp01(p) * 0.5).toFixed(3);
@@ -240,9 +229,11 @@
     }
   }
 
-  /* ---------- drive loop: Lenis if present, else native scroll ---------- */
+  /* ---------- drive loop: Lenis on pointer devices only.
+       On touch/mobile, smooth-scroll libraries fight native momentum and cause
+       jank — use native scroll there (the frame loop still drives the visuals). */
   var lenis = null;
-  if (typeof window.Lenis === "function") {
+  if (!coarse && typeof window.Lenis === "function") {
     lenis = new window.Lenis({ lerp: 0.09 });
     // dev-only handle for deep-linking to a scroll position (e.g. ?debug + console)
     if (location.search.indexOf("debug") > -1) window.__lenis = lenis;
