@@ -170,10 +170,10 @@ body {
 .layer-mission { z-index: 5; }
 
 .mission {
+  /* full measure — no inner padding eating into the column (the grid centres
+     the block; 86vw keeps side breathing room on small screens) */
   width: min(680px, 86vw);
-  padding: 0 var(--pad-side);
   text-align: center;
-  /* the grid keeps the whole block optically centred in the deep */
 }
 
 .mission__eyebrow {
@@ -194,6 +194,7 @@ body {
   letter-spacing: 0;
   margin: 0;
   color: var(--text-on-deep);
+  text-wrap: balance;   /* even centred line lengths */
 }
 
 .mission__body {
@@ -203,6 +204,7 @@ body {
   line-height: 1.64;
   margin: clamp(20px, 2.5vh, 36px) 0 0;
   color: var(--text-on-deep);
+  text-wrap: balance;   /* even centred line lengths */
 }
 
 .gold { color: var(--gold); }
