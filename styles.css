@@ -207,7 +207,7 @@ body {
   font-weight: 400;
   font-size: clamp(1.0625rem, 1.55vw, 1.3rem);
   line-height: 1.64;
-  margin: clamp(20px, 2.5vh, 36px) 0 0;
+  margin: clamp(30px, 4.2vh, 56px) 0 0;   /* breathing room between lead and body */
   color: var(--text-on-deep);
   text-wrap: balance;   /* even centred line lengths */
 }
