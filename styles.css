@@ -1,0 +1,409 @@
+/* =====================================================================
+   Iceberg Partners LLC — Landing Page
+   Navy + gold, and nothing else. Depth beneath the surface.
+   Tokens: DESIGN_SYSTEM.md · Motion: ANIMATION_SPEC.md
+   ===================================================================== */
+
+:root {
+  /* --- Color (DESIGN_SYSTEM §2.2) --- */
+  --navy:        #1F2B48;   /* brand surface / PANTONE 2767 C (approx) */
+  --navy-deep:   #0A1020;
+  --navy-abyss:  #060A16;
+  --gold:        #A99E69;   /* the single accent */
+  --gold-light:  #CFC48C;   /* specular gleam / highlight */
+  --gold-deep:   #7C7345;   /* facet shadow / gold in depth */
+  --ice-surface: #33405F;
+  --ice-mid:     #27324C;
+  --ice-deep:    #161E33;
+  --text-on-deep:#ECE7DA;   /* ivory body */
+  --text-muted:  #9AA3BC;
+
+  /* --- Easing (ANIMATION_SPEC §2) --- */
+  --ease-descent: cubic-bezier(0.33, 0.00, 0.20, 1.00);
+  --ease-emerge:  cubic-bezier(0.16, 1.00, 0.30, 1.00);
+  --ease-surface: cubic-bezier(0.65, 0.00, 0.35, 1.00);
+
+  /* --- Spacing (DESIGN_SYSTEM §4) --- */
+  --pad-side: clamp(1.5rem, 5vw, 6rem);
+
+  /* scroll progress, written by JS */
+  --p: 0;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--navy-abyss);
+  color: var(--text-on-deep);
+  font-family: "Newsreader", Georgia, serif;
+  font-feature-settings: "kern", "liga";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::selection { background: rgba(169, 158, 105, 0.28); color: var(--text-on-deep); }
+
+/* =====================================================================
+   Stage & scroll track (ANIMATION_SPEC §1)
+   ===================================================================== */
+
+.scroll-track {
+  position: relative;
+  height: 360vh;              /* desktop reveal length */
+  width: 100%;
+}
+
+.stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  /* default background; JS lerps this between the §2.1 stops */
+  background: linear-gradient(180deg, #1F2B48 0%, #1B2641 100%);
+  isolation: isolate;
+}
+
+/* Each centered layer is a full-stage grid that places one element at center.
+   The inner .anim carries the JS-driven transform/opacity. */
+.center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.anim { will-change: transform, opacity; }
+
+/* =====================================================================
+   Wordmark lockup — the identity (DESIGN_SYSTEM §3)
+   ===================================================================== */
+
+.layer-wordmark { z-index: 6; }
+
+.wordmark {
+  margin: 0;
+  text-align: center;
+  user-select: none;
+  /* lifted slightly above true center so it reads as the brand "face" */
+  transform: translateY(-2vh);
+}
+
+.lockup {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+
+  /* Gold fill + a moving specular band for the gleam.
+     --gleam-pos parks off-screen by default => solid gold (and JS-free safe). */
+  --gleam-pos: -30%;
+  color: var(--gold);
+  background-image: linear-gradient(
+    100deg,
+    var(--gold)        0%,
+    var(--gold)        calc(var(--gleam-pos) - 11%),
+    var(--gold-light)  var(--gleam-pos),
+    var(--gold)        calc(var(--gleam-pos) + 11%),
+    var(--gold)        100%
+  );
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.lockup__main {
+  font-family: "Cinzel", Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(2.25rem, 7vw, 6rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lockup__sub {
+  font-family: "Cinzel", Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(0.76rem, 2.38vw, 2.04rem);   /* ≈ 0.34× ICEBERG */
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-top: 0.6em;
+}
+
+/* =====================================================================
+   Iceberg
+   ===================================================================== */
+
+.layer-tip  { z-index: 3; }
+.layer-mass { z-index: 2; }
+
+.layer-tip .anim  { transform: translateY(-20vh); }   /* rest: upper area, above the lockup */
+.layer-mass .anim { transform: translateY(70vh); opacity: 0; }
+
+.berg { display: block; }
+.berg--tip  { width: clamp(150px, 26vw, 300px); height: auto; }
+.berg--mass { width: clamp(320px, 56vw, 620px); height: auto; }
+
+/* Gold waterline / surface (ANIMATION_SPEC §4.2) */
+.layer-waterline { z-index: 4; }
+.waterline {
+  width: min(78vw, 1100px);
+  height: 1px;
+  transform: translateY(32vh);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(207, 196, 140, 0.0) 6%,
+    var(--gold) 30%,
+    var(--gold-light) 50%,
+    var(--gold) 70%,
+    rgba(207, 196, 140, 0.0) 94%,
+    transparent 100%
+  );
+  box-shadow: 0 0 14px 1px rgba(207, 196, 140, 0.35);
+}
+
+/* =====================================================================
+   Mission statement (DESIGN_SYSTEM §3 · ANIMATION_SPEC §4.6–4.7)
+   ===================================================================== */
+
+.layer-mission { z-index: 5; }
+
+.mission {
+  width: min(680px, 86vw);
+  padding: 0 var(--pad-side);
+  text-align: center;
+  /* settles a touch below true center so it sits "in the deep" */
+  transform: translateY(4vh);
+}
+
+.mission__eyebrow {
+  font-family: "Cinzel", Georgia, serif;
+  font-weight: 500;
+  font-size: 0.8125rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 0 0 clamp(18px, 3vh, 34px);
+}
+
+.mission__lead {
+  font-family: "Cormorant Garamond", "Newsreader", Georgia, serif;
+  font-weight: 300;
+  font-size: clamp(1.5rem, 3.4vw, 2.6rem);
+  line-height: 1.32;
+  letter-spacing: 0;
+  margin: 0;
+  color: var(--text-on-deep);
+}
+
+.mission__body {
+  font-family: "Newsreader", Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(1.0625rem, 1.55vw, 1.3rem);
+  line-height: 1.64;
+  margin: clamp(20px, 2.5vh, 36px) 0 0;
+  color: var(--text-on-deep);
+}
+
+.gold { color: var(--gold); }
+
+/* =====================================================================
+   Scroll cue (ANIMATION_SPEC §4.10)
+   ===================================================================== */
+
+.scroll-cue {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(28px, 6vh, 64px);
+  transform: translateX(-50%);
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: var(--gold);
+  animation: cue-bob 1.6s ease-in-out infinite alternate;
+}
+.scroll-cue__label {
+  font-family: "Cinzel", Georgia, serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+.scroll-cue__line {
+  width: 1px;
+  height: 38px;
+  background: linear-gradient(180deg, var(--gold), transparent);
+}
+@keyframes cue-bob {
+  from { transform: translate(-50%, 0);   opacity: 0.55; }
+  to   { transform: translate(-50%, 6px); opacity: 1; }
+}
+
+/* =====================================================================
+   Footer (DESIGN_SYSTEM §7)
+   ===================================================================== */
+
+.footer {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(22px, 4.5vh, 48px);
+  transform: translateX(-50%) translateY(12px);
+  opacity: 0;
+  z-index: 7;
+  text-align: center;
+  pointer-events: auto;
+}
+.footer__rule {
+  display: block;
+  width: 120px;
+  height: 1px;
+  margin: 0 auto 16px;
+  background: linear-gradient(90deg, transparent, var(--gold-deep), transparent);
+  opacity: 0.7;
+}
+.footer__text {
+  margin: 0;
+  font-family: "Cinzel", Georgia, serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* =====================================================================
+   Atmosphere (DESIGN_SYSTEM §5)
+   ===================================================================== */
+
+.shafts {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;            /* JS fades in below the surface */
+  pointer-events: none;
+  overflow: hidden;
+}
+.shaft {
+  position: absolute;
+  top: -20%;
+  height: 150%;
+  width: 36vw;
+  max-width: 520px;
+  background: linear-gradient(180deg,
+    rgba(207, 196, 140, 0.16) 0%,
+    rgba(207, 196, 140, 0.04) 55%,
+    transparent 100%);
+  filter: blur(26px);
+  transform-origin: top center;
+}
+.shaft--1 { left: 8%;  transform: rotate(9deg);  animation: shaft-drift 14s ease-in-out infinite alternate; }
+.shaft--2 { left: 44%; transform: rotate(-6deg); animation: shaft-drift 18s ease-in-out -4s infinite alternate; opacity: 0.8; }
+.shaft--3 { right: 10%; transform: rotate(12deg); animation: shaft-drift 16s ease-in-out -8s infinite alternate; opacity: 0.6; }
+@keyframes shaft-drift {
+  from { transform: translateX(-2vw) rotate(8deg); }
+  to   { transform: translateX(3vw)  rotate(11deg); }
+}
+
+.motes {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  opacity: 0;            /* JS fades canvas opacity with depth */
+  pointer-events: none;
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  opacity: 0;            /* JS scales 0 → ~0.5 with descent */
+  background: radial-gradient(120% 92% at 50% 42%,
+    transparent 52%,
+    rgba(6, 10, 22, 0.55) 100%);
+}
+
+.grain {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* =====================================================================
+   JS-driven hidden states — applied only when motion JS is active, so a
+   no-JS / failed-load visitor still sees everything (README §8 / §4).
+   ===================================================================== */
+
+html.js .mission__eyebrow,
+html.js .mission__lead,
+html.js .mission__body { opacity: 0; }
+
+/* =====================================================================
+   Reduced motion (ANIMATION_SPEC §8): a calm, naturally-scrolling layout.
+   No pin, no scrub, no parallax, no gleam, no motes.
+   ===================================================================== */
+
+html.reduced .scroll-track { height: auto; }
+html.reduced .stage {
+  position: static;
+  height: auto;
+  min-height: 100vh;
+  overflow: visible;
+  background: linear-gradient(180deg, #1F2B48 0%, #0A1020 60%, #060A16 100%);
+}
+html.reduced .center {
+  position: static;
+  min-height: 100vh;
+  padding: 12vh var(--pad-side);
+}
+html.reduced .layer-tip,
+html.reduced .layer-mass,
+html.reduced .layer-waterline,
+html.reduced .motes,
+html.reduced .scroll-cue { display: none; }
+
+html.reduced .layer-wordmark { min-height: 60vh; }
+html.reduced .wordmark { transform: none; }
+
+html.reduced .mission { transform: none; min-height: auto; }
+html.reduced .layer-mission { padding-top: 4vh; padding-bottom: 18vh; }
+
+html.reduced .shafts { opacity: 0.5; position: fixed; }
+html.reduced .shaft { animation: none; }
+html.reduced .vignette { opacity: 0.4; position: fixed; }
+
+html.reduced .footer { position: static; transform: none; opacity: 1; margin: 8vh auto 6vh; }
+
+/* gentle, opacity-only fade-ins via IntersectionObserver */
+html.reduced .anim { opacity: 0; transition: opacity 700ms ease-out; }
+html.reduced .anim.in { opacity: 1; }
+html.reduced .footer.anim { opacity: 0; }
+html.reduced .footer.anim.in { opacity: 1; }
+
+/* =====================================================================
+   Focus & responsive
+   ===================================================================== */
+
+a, .footer__text { transition: color 200ms ease, opacity 200ms ease; }
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+@media (max-width: 640px) {
+  .scroll-track { height: 280vh; }
+  .waterline { width: 86vw; }
+  .berg--mass { width: 78vw; }
+  .shaft--3 { display: none; }     /* thin the atmosphere on mobile */
+}

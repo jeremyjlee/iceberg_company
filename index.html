@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Iceberg Partners LLC — New York Real Estate Investment</title>
+  <meta name="description" content="Iceberg Partners LLC is a New York real estate investment firm providing differentiated capital solutions in special situations, with downside protection built at entry." />
+
+  <meta property="og:title" content="Iceberg Partners LLC" />
+  <meta property="og:description" content="A New York real estate investment firm. Depth beneath the surface." />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#1F2B48" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Newsreader:opsz,wght@6..72,300;6..72,400&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main>
+    <div class="scroll-track" id="track">
+      <div class="stage" id="stage">
+
+        <!-- Atmosphere: gold light shafts descending from the surface -->
+        <div class="shafts" id="shafts" aria-hidden="true">
+          <span class="shaft shaft--1"></span>
+          <span class="shaft shaft--2"></span>
+          <span class="shaft shaft--3"></span>
+        </div>
+
+        <!-- Marine motes (below water only) -->
+        <canvas class="motes" id="motes" aria-hidden="true"></canvas>
+
+        <!-- Iceberg: above-water tip -->
+        <div class="center layer-tip" aria-hidden="true">
+          <div class="anim" data-el="tip">
+            <svg class="berg berg--tip" viewBox="0 0 300 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="tipFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#3a4869" />
+                  <stop offset="1" stop-color="#27324c" />
+                </linearGradient>
+              </defs>
+              <!-- craggy peak resting on the waterline (y≈138) -->
+              <path d="M42 138 L104 86 L132 100 L150 26 L178 74 L206 92 L258 138 Z"
+                    fill="url(#tipFill)" />
+              <!-- gold facet hairlines -->
+              <g stroke-linecap="round" opacity="0.55">
+                <path d="M150 26 L132 100" stroke="#7c7345" stroke-width="1" />
+                <path d="M150 26 L178 74" stroke="#a99e69" stroke-width="1" />
+                <path d="M104 86 L150 26" stroke="#a99e69" stroke-width="0.75" opacity="0.7" />
+                <path d="M178 74 L206 92" stroke="#7c7345" stroke-width="0.75" />
+              </g>
+              <!-- bright gold rim at the waterline edge -->
+              <path d="M42 138 L258 138" stroke="#cfc48c" stroke-width="1.5" opacity="0.9" stroke-linecap="round" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- The gold waterline / surface -->
+        <div class="center layer-waterline" aria-hidden="true">
+          <div class="anim waterline" data-el="waterline"></div>
+        </div>
+
+        <!-- Iceberg: below-water mass (the reveal) -->
+        <div class="center layer-mass" aria-hidden="true">
+          <div class="anim" data-el="mass">
+            <svg class="berg berg--mass" viewBox="0 0 560 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="massFill" x1="0" y1="0" x2="0.15" y2="1">
+                  <stop offset="0" stop-color="#33405f" />
+                  <stop offset="0.42" stop-color="#222d46" />
+                  <stop offset="1" stop-color="#161e33" />
+                </linearGradient>
+                <radialGradient id="massGlow" cx="0.5" cy="0.05" r="0.9">
+                  <stop offset="0" stop-color="#4a587a" stop-opacity="0.55" />
+                  <stop offset="0.5" stop-color="#33405f" stop-opacity="0" />
+                </radialGradient>
+              </defs>
+              <!-- submerged bulk: wide shoulder just below the surface, tapering to a deep point -->
+              <path d="M34 28
+                       L150 12 L214 34 L300 8 L386 30 L470 18 L528 44
+                       L512 150 L538 286 L470 430 L386 560 L300 678
+                       L236 556 L150 432 L70 300 L40 168 Z"
+                    fill="url(#massFill)" />
+              <path d="M34 28
+                       L150 12 L214 34 L300 8 L386 30 L470 18 L528 44
+                       L512 150 L538 286 L470 430 L386 560 L300 678
+                       L236 556 L150 432 L70 300 L40 168 Z"
+                    fill="url(#massGlow)" />
+              <!-- internal gold facet structure (hairlines) -->
+              <g stroke-linecap="round" fill="none">
+                <path d="M300 8 L300 678" stroke="#7c7345" stroke-width="1" opacity="0.35" />
+                <path d="M214 34 L300 360 L386 30" stroke="#a99e69" stroke-width="1" opacity="0.42" />
+                <path d="M40 168 L300 360 L538 286" stroke="#7c7345" stroke-width="1" opacity="0.34" />
+                <path d="M150 12 L236 556" stroke="#a99e69" stroke-width="0.75" opacity="0.3" />
+                <path d="M470 18 L386 560" stroke="#a99e69" stroke-width="0.75" opacity="0.3" />
+                <path d="M528 44 L300 360" stroke="#7c7345" stroke-width="0.75" opacity="0.28" />
+                <path d="M34 28 L300 360" stroke="#7c7345" stroke-width="0.75" opacity="0.28" />
+              </g>
+              <!-- bright gold rim along the top shoulder (where it meets the surface) -->
+              <path d="M34 28 L150 12 L214 34 L300 8 L386 30 L470 18 L528 44"
+                    stroke="#cfc48c" stroke-width="1.75" opacity="0.85" stroke-linejoin="round" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- The wordmark lockup (the signature) -->
+        <div class="center layer-wordmark">
+          <h1 class="anim wordmark" data-el="wordmark">
+            <span class="lockup">
+              <span class="lockup__main">Iceberg</span>
+              <span class="lockup__sub">Partners&nbsp;LLC</span>
+            </span>
+          </h1>
+        </div>
+
+        <!-- Mission statement (real, selectable DOM text — present without JS) -->
+        <div class="center layer-mission">
+          <div class="mission">
+            <p class="mission__eyebrow anim" data-el="eyebrow">New York</p>
+            <p class="mission__lead anim" data-el="lead">
+              Iceberg Partners LLC is a real estate investment firm based in New York,
+              led by senior professionals with two decades of experience across U.S.
+              commercial real estate and Korean institutional capital.
+            </p>
+            <p class="mission__body anim" data-el="body">
+              Iceberg seeks to provide differentiated capital solutions in
+              <span class="gold">special situations</span>, with
+              <span class="gold">downside protection built at entry</span>, spanning
+              discounted note acquisitions, structured credit, and control investments
+              sourced <span class="gold">ahead of the broader market</span>.
+            </p>
+          </div>
+        </div>
+
+        <!-- Scroll cue (only at the very top) -->
+        <div class="scroll-cue" id="cue" aria-hidden="true">
+          <span class="scroll-cue__label">Scroll</span>
+          <span class="scroll-cue__line"></span>
+        </div>
+
+        <!-- Quiet footer label (the single permitted contact line) -->
+        <footer class="footer anim" data-el="footer">
+          <span class="footer__rule" aria-hidden="true"></span>
+          <p class="footer__text">Iceberg Partners LLC · New York</p>
+        </footer>
+
+        <!-- Texture overlays -->
+        <div class="vignette" id="vignette" aria-hidden="true"></div>
+        <div class="grain" aria-hidden="true"></div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Smooth scroll (graceful: page still works if this fails to load) -->
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
