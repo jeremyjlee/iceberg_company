@@ -1,46 +1,52 @@
 # Iceberg Partners LLC — Design System
 
-> Binding reference for all visual tokens. Pair with `ANIMATION_SPEC.md` for motion.
+> Binding reference for all visual tokens (as-built). Pair with `ANIMATION_SPEC.md` for motion.
 > Read `README.md` first for intent. Values here are concrete on purpose — use them.
 
 ---
 
 ## 1. Design principles
 
-1. **Depth beneath the surface.** Every choice ladders back to the iceberg metaphor: small/
-   quiet above, vast/substantial below. The background literally travels from the brand navy
-   at the surface to a near-black navy abyss as the visitor descends.
-2. **Navy + gold, and nothing else.** A single deep-navy field (PANTONE 2767 C) with one
-   precious **gold** accent. Gold appears rarely — the wordmark, the waterline, a few facet
-   lines, the mission's emphasis — which is what makes it read as precious. No second accent.
+1. **Depth beneath the surface.** Every choice ladders back to the iceberg metaphor: small/quiet
+   above, vast/substantial below. The background literally travels from the brand navy at the
+   surface to a near-black navy abyss as the visitor descends.
+2. **Navy + gold, and nothing else.** A single deep-navy field (PANTONE 2767 C) with one precious
+   **gold** accent. Gold appears rarely — the wordmark, the surface line (which becomes the
+   iceberg rim), a few facet lines, the scroll cue, and the mission's emphasis — which is what
+   makes it read as precious. No second accent.
 3. **Restraint as luxury.** Generous negative space, slow pacing, minimal text. If an element
-   doesn't serve the reveal, remove it. (Chanel rule: remove one accessory before you ship.)
+   doesn't serve the reveal, remove it. (We removed the above-water tip and the marine-mote
+   particles for exactly this reason.)
 4. **Precision over ornament.** A minimal, institutional direction lives or dies on spacing,
    type, and timing being *exact*. No sloppy rhythm, no arbitrary values.
-5. **Classical, institutional voice.** A refined inscriptional serif (the logo's world)
-   carries the personality — gravitas and heritage, the look of a serious finance firm.
+5. **Classical, institutional voice.** A refined inscriptional serif (the logo's world) carries
+   the personality — gravitas and heritage, the look of a serious finance firm.
 
 ---
 
 ## 2. Color system
 
-A single vertical journey from the **brand navy surface** (top of scroll) to a **near-black
-navy abyss** (bottom). Implement the background as an interpolation between these stops driven
-by scroll progress `p` (see `ANIMATION_SPEC.md` §3 / §9). Gold, ice, and text are fixed tokens.
+A single vertical journey from the **brand navy surface** (top of scroll) to a **near-black navy
+abyss** (bottom). Implemented as **five stacked gradient layers whose opacity is cross-faded** by
+scroll progress `p` (compositor-only — no per-frame repaint; see `ANIMATION_SPEC.md` §4.1 / §7).
+Gold, ice, and text are fixed tokens.
 
 ### 2.1 Background journey (by scroll progress `p`)
 
-| `p`  | Zone               | Top color   | Bottom color | Feel                              |
-|------|--------------------|-------------|--------------|-----------------------------------|
-| 0.00 | Brand surface      | `#1F2B48`   | `#1B2641`    | the card: PANTONE 2767 C navy     |
-| 0.25 | Waterline          | `#1A2440`   | `#161F37`    | the threshold; gold line passes   |
-| 0.45 | Upper deep         | `#141C32`   | `#10182C`    | descending into navy              |
-| 0.70 | Deep               | `#0D1426`   | `#0A1020`    | dim, heavy                        |
-| 1.00 | Abyss              | `#080E1C`   | `#060A16`    | near-black navy, still            |
+The layers and their gradient stops (top → bottom of viewport); layer *n* fades out across its
+zone to reveal the next deeper layer beneath it:
 
-> Interpolate **in linear/sRGB** between adjacent stops. A fine grain overlay (§5) prevents
-> banding. The *color* travel is near-linear so it feels physically tied to scroll — only
-> discrete elements (text, the gleam) get eased reveals.
+| Layer | Zone (`p`)   | Top color   | Bottom color | Feel                              |
+|-------|--------------|-------------|--------------|-----------------------------------|
+| s0    | 0.00 → 0.25  | `#1F2B48`   | `#1B2641`    | the card: PANTONE 2767 C navy     |
+| s1    | 0.25 → 0.45  | `#1A2440`   | `#161F37`    | the threshold                     |
+| s2    | 0.45 → 0.70  | `#141C32`   | `#10182C`    | descending into navy              |
+| s3    | 0.70 → 1.00  | `#0D1426`   | `#0A1020`    | deep, heavy                       |
+| s4    | (base)       | `#080E1C`   | `#060A16`    | near-black navy abyss, always on  |
+
+> Cross-fading adjacent layers approximates a smooth color travel while staying GPU-composited.
+> A fine grain overlay (§5) prevents banding. Only discrete elements (text, the gleam) get eased
+> reveals; the color travel tracks scroll near-linearly so it feels physically tied to it.
 
 ### 2.2 Fixed tokens
 
@@ -49,109 +55,104 @@ by scroll progress `p` (see `ANIMATION_SPEC.md` §3 / §9). Gold, ice, and text 
 | `--navy`             | `#1F2B48`  | brand surface / base (PANTONE 2767 C, screen approx)      |
 | `--navy-deep`        | `#0A1020`  | deep water                                                |
 | `--navy-abyss`       | `#060A16`  | deepest background                                        |
-| `--gold`             | `#A99E69`  | **wordmark + the single accent.** Waterline, facets, emphasis. |
-| `--gold-light`       | `#CFC48C`  | specular gleam / highlight on dark                        |
+| `--gold`             | `#A99E69`  | **wordmark + the single accent.** Surface line, facets, emphasis. |
+| `--gold-light`       | `#CFC48C`  | specular gleam / highlight on dark, surface-line core     |
 | `--gold-deep`        | `#7C7345`  | facet shadow / gold in depth                              |
-| `--ice-surface`      | `#33405F`  | iceberg mass near the waterline (lighter navy, catches light) |
+| `--ice-surface`      | `#33405F`  | iceberg mass near the waterline (lighter navy)            |
 | `--ice-mid`          | `#27324C`  | iceberg mid tone                                          |
 | `--ice-deep`         | `#161E33`  | iceberg as it sinks toward the background                 |
 | `--text-on-deep`     | `#ECE7DA`  | mission body — ivory/champagne (readability on navy)      |
 | `--text-muted`       | `#9AA3BC`  | secondary text, labels, footer (muted slate)             |
 
-> **Discipline:** gold is the *only* accent and appears in very few places (wordmark,
-> waterline, a few facet hairlines, the scroll cue, and emphasis on three phrases). Do not
-> spread it around. The iceberg is **navy drawn in gold light**, not a white object.
+> **Discipline:** gold is the *only* accent and appears in very few places. The iceberg is **navy
+> drawn in gold light**, not a white object. (The SVG fills use literal hex sampled from these
+> tokens; the easing/`--p` custom props live on the stage.)
 
 ### 2.3 Contrast guardrails
 
 - Mission **body** (`--text-on-deep` on `--navy-deep`/`--navy-abyss`) → ≈ 12:1, AAA. Keep all
   long-form text ivory.
-- **Gold** is the brand's chosen wordmark color on navy (lower-contrast by nature, AA-large).
-  Use gold for the **large wordmark** and **short emphasis phrases** only — never for long body
-  text. Verify each gold element meets **AA against the live background at its scroll position**
-  (gold on the deep navy passes comfortably; gold on the lighter surface navy is AA-large only,
-  which matches the logo's own usage).
-- If the mission ever sits over the iceberg mass or a busier region, add a **very soft radial
-  darkening** behind the text (`--navy-abyss` at ~30–45%, large feather) so it reads as depth,
-  not a box.
+- **Gold** is the brand's wordmark color on navy (lower-contrast by nature). Use gold for the
+  **large wordmark**, the **surface line**, and **short emphasis phrases** only — never for long
+  body text. Verify each gold element meets **AA against the live background at its scroll
+  position** (gold on the deep navy passes comfortably; gold on the lighter surface navy is
+  AA-large only, matching the logo's own usage). *Outstanding: confirm the emphasis phrases at
+  body size against the live navy.*
+- If the mission ever sits over the iceberg mass, the mass is dimmed (opacity → ~0.18) by then,
+  so ivory text stays clean; a soft radial darkening can be added if a busier region appears.
 
 ---
 
 ## 3. Typography
 
-The logo is a classical inscriptional serif (Trajan/Caslon family). The type system follows
-that world: a Roman-caps display face + a readable old-style text serif.
+The logo is a classical inscriptional serif (Trajan/Caslon family). The type system follows that
+world: a Roman-caps display face + a readable old-style text serif.
 
-### 3.1 Typefaces
+### 3.1 Typefaces (Google Fonts, loaded in `index.html`)
 
-| Role             | Primary                         | Free fallback (use immediately)   | Final fallback     |
-|------------------|---------------------------------|-----------------------------------|--------------------|
-| Wordmark / caps  | The official logo asset (Trajan/Caslon) | **Cinzel** (Google; Trajan-like) | Georgia, serif     |
-| Mission (body)   | Newsreader / Caslon             | **Newsreader** (Google)           | Georgia, serif     |
-| Mission lead     | (optional display)              | **Cormorant Garamond** (Google)   | Newsreader, serif  |
-| Labels (caps)    | Cinzel small / tracked          | **Cinzel** (Google)               | Georgia, serif     |
+| Role             | In use                            | Final fallback     |
+|------------------|-----------------------------------|--------------------|
+| Wordmark / caps  | **Cinzel** (Trajan-like)          | Georgia, serif     |
+| Mission lead     | **Cormorant Garamond** (display)  | Newsreader, serif  |
+| Mission body     | **Newsreader** (text serif)       | Georgia, serif     |
+| Labels (caps)    | **Cinzel** small / tracked        | Georgia, serif     |
 
-- **Wordmark** = the supplied lockup wherever possible. If re-set: **Cinzel**, uppercase, the
-  classical inscriptional look of the logo. Gold.
-- **Mission body** = **Newsreader** — a refined text serif that stays legible at paragraph
-  length (the statement is dense institutional prose; readability matters). Ivory.
-- **Mission lead / eyebrow** (optional) = Cormorant Garamond (lighter, more display) for a
-  flourish; otherwise set the lead in Newsreader light. Keep the system to **logo-face +
-  Newsreader** if you want maximum cohesion.
-- **Labels** (scroll cue, footer) = Cinzel small caps, tracked. Muted slate or gold.
+- **Wordmark** = re-set in **Cinzel**, uppercase, gold (swap in the official logo vector when
+  available — `README.md` §10).
+- **Mission lead** (sentence 1) = **Cormorant Garamond**, light — the larger display sentence.
+- **Mission body** (sentence 2) = **Newsreader** — refined text serif, legible at paragraph
+  length. Ivory.
+- **Labels** (scroll cue, footer, eyebrow) = Cinzel small caps, tracked. Muted slate or gold.
 
 ### 3.2 Type scale
 
 | Element                 | Size                               | Weight | Tracking | Leading | Case      |
 |-------------------------|------------------------------------|--------|----------|---------|-----------|
 | Wordmark `ICEBERG`      | `clamp(2.25rem, 7vw, 6rem)`        | 500    | `0.08em` | 1.0     | UPPERCASE |
-| Wordmark `PARTNERS LLC` | `~0.34×` the ICEBERG size          | 500    | `0.18em` | 1.0     | UPPERCASE |
-| Mission — lead/sentence 1 | `clamp(1.5rem, 3.4vw, 2.6rem)`   | 300    | `0`      | 1.32    | Sentence  |
-| Mission — sentence 2 / body | `clamp(1.0625rem, 1.55vw, 1.3rem)` | 400 | `0`      | 1.64    | Sentence  |
-| Label / scroll cue      | `0.8125rem` (13px)                 | 500    | `0.18em` | 1.4     | UPPERCASE |
-| Footer label (opt.)     | `0.75rem` (12px)                   | 500    | `0.2em`  | 1.4     | UPPERCASE |
+| Wordmark `PARTNERS LLC` | `clamp(0.76rem, 2.38vw, 2.04rem)`  | 500    | `0.18em` | 1.0     | UPPERCASE |
+| Mission — eyebrow       | `0.8125rem` (13px)                 | 500    | `0.3em`  | —       | UPPERCASE |
+| Mission — lead          | `clamp(1.5rem, 3.4vw, 2.6rem)`     | 300    | `0`      | 1.32    | Sentence  |
+| Mission — body          | `clamp(1.0625rem, 1.55vw, 1.3rem)` | 400    | `0`      | 1.64    | Sentence  |
+| Label / scroll cue      | `0.8125rem` (13px)                 | 500    | `0.3em`  | 1.4     | UPPERCASE |
+| Footer label            | `0.75rem` (12px)                   | 500    | `0.2em`  | 1.4     | UPPERCASE |
 
-- **Lockup proportion:** `ICEBERG` large over `PARTNERS LLC` smaller and more tracked — match
-  the logo. Do not tighten the wordmark tracking.
-- **Mission column width:** cap at `~62ch` / `min(680px, 86vw)`. Let sentence 1 breathe as the
-  larger "lead"; sentence 2 is the calmer supporting block.
-- Enable kerning/ligatures on the serifs (`font-feature-settings: "kern","liga"`). If using
-  Cormorant for the lead, set a generous size; it's high-contrast and reads thin when small.
+- **Lockup proportion:** `ICEBERG` large over `PARTNERS LLC` smaller and more tracked (≈ 0.34×).
+- **Mission column:** capped at `min(680px, 86vw)` with **no inner padding** (the grid centers
+  the block; full measure keeps the lead to ~5 even lines).
+- **Centered + balanced:** lead and body are `text-align: center` with **`text-wrap: balance`** so
+  centered lines are even (no ragged "diamond"). The whole block is optically centered in the
+  deep. Space between lead and body: `clamp(30px, 4.2vh, 56px)`.
+- Enable kerning/ligatures on the serifs (`font-feature-settings: "kern","liga"`).
 
 ---
 
 ## 4. Spacing & layout
 
 - **Base unit:** 8px. Scale: `4, 8, 12, 16, 24, 32, 48, 64, 96, 128, 192`.
-- **Page side padding:** `clamp(1.5rem, 5vw, 6rem)`.
-- **Composition:** single centered column. Iceberg centered; lockup centered; mission centered
-  within its capped column. Vertical placement is scroll-driven (see `ANIMATION_SPEC.md`);
-  resting centers sit around `46–50vh`.
-- **Rhythm:** spacious and breathing — a slow, quiet page. Between mission sentence 1 and
-  sentence 2: `clamp(20px, 2.5vh, 36px)`.
-- No 12-column grid needed for a centered composition; keep everything optically centered and
-  symmetric.
+- **Page side padding:** `--pad-side: clamp(1.5rem, 5vw, 6rem)` (used for stage edges, not inside
+  the mission column).
+- **Composition:** single centered column. Iceberg centered; lockup centered (rest at ≈ `-2vh`
+  of viewport center); mission centered within its capped column. Vertical placement is
+  scroll-driven (see `ANIMATION_SPEC.md`).
+- **Rhythm:** spacious and breathing — a slow, quiet page.
+- Everything optically centered and symmetric; no grid needed.
 
 ---
 
 ## 5. Atmosphere & texture
 
 Subtle, low-opacity layers that sell "depth" without competing with the wordmark or text. Most
-fade in only below the surface (timing in `ANIMATION_SPEC.md`).
+fade in only below the surface (timing in `ANIMATION_SPEC.md` §4.8).
 
-- **Gold light shafts:** faint warm light descending from the surface — gold's natural home is
-  "the light above." Peak opacity ~`0.18` (tinted with `--gold-light`), thinning to ~`0.06` in
-  the deep. Slow ambient horizontal drift (~14s, small amplitude). 2–3 shafts max. Keep very
-  subtle — gold light, not a spotlight.
-- **Waterline gleam:** the brief specular sweep across the gold wordmark at the threshold (see
-  `ANIMATION_SPEC.md` §4.5) — the atmosphere's one bright accent.
-- **Marine motes:** sparse tiny **pale-gold** flecks drifting slowly downward, *below water
-  only* (like dust in a shaft of light). Opacity `0.06–0.12`. 2 parallax depths. Low density —
-  seasoning, not snow.
-- **Grain overlay:** fine film grain at `2–4%` over everything. Prevents banding in the navy
-  gradient and adds a tactile, premium quality. Static or very slow.
-- **Vignette:** gentle edge darkening that deepens with descent — the pressure of the abyss at
-  the bottom.
+- **Gold light shafts:** faint warm light descending from the surface. Peak opacity ~`0.18`
+  (tinted `--gold-light`), thinning to ~`0.05` in the deep. Slow ambient horizontal drift
+  (~14–18s). 3 shafts on desktop; the third is dropped and the blur lightened on mobile.
+- **Surface-line gleam / rim:** the gold line itself is the atmosphere's main bright accent — see
+  §6 and `ANIMATION_SPEC.md` §4.2. The wordmark **gleam** (§ANIMATION_SPEC 4.5) is the other.
+- **Grain overlay:** fine film grain at ~`3.5%` (`mix-blend-mode: overlay`) to prevent gradient
+  banding and add a tactile, premium quality. **Disabled on mobile** (the blend mode is costly).
+- **Vignette:** gentle edge darkening that deepens with descent (opacity `0 → ~0.5`).
+- **Removed:** the marine-mote canvas particles (the "drifting dots") are gone.
 
 > If any atmosphere layer competes with the mission text or the iceberg, dial it down or cut it.
 
@@ -159,34 +160,33 @@ fade in only below the surface (timing in `ANIMATION_SPEC.md`).
 
 ## 6. The iceberg (visual construction)
 
-- **Form:** layered inline SVG. Three transformable groups: `tip` (above water), `surface`
-  (the gold waterline element), `mass` (below water). Particles separate (canvas).
-- **Silhouette:** irregular and faceted, not a smooth lozenge. The tip is a small jagged peak;
-  the mass widens below the surface, then tapers to a deep point — the classic underwater bulk.
-  Trace a few internal **facet lines in gold hairlines** (`--gold` / `--gold-deep`, ~1px, low
-  opacity) for crystalline structure.
-- **Proportion:** tip ≈ **12–18%** of total height; mass ≈ **82–88%**. Keep the tip small — the
-  scale contrast at reveal is the point.
-- **Fill (tonal navy):** the ice is a navy form, lighter than the background so it reads:
-  - tip & just-below-surface: `--ice-surface` → `--ice-mid`
-  - descending: `--ice-mid` → `--ice-deep`
-  - deepest: `--ice-deep` blends toward the background (never a hard cutout)
-- **Gold edge light:** a brighter **gold rim where ice meets the waterline** (the surface
-  catching light), and gold hairline facets. This is what makes the dark mass read as ice. Use
-  `--gold-light` for the brightest rim at the surface, fading to `--gold-deep` in depth.
-- **No hard drop shadows.** Depth comes from the tonal gradient, gold facets, parallax, and
-  atmosphere.
+- **Form:** layered inline SVG — one **mass** group (`viewBox 0 0 560 700`) for the submerged
+  bulk. The top rim is **not** drawn in the mass SVG; it is the separate **surface line** (§ below)
+  which morphs onto the mass's top edge and rides it up.
+- **Silhouette:** irregular and faceted — a wide jagged shoulder just below the surface, widening
+  then tapering to a deep point. Internal **facet lines in gold hairlines** (`--gold` /
+  `--gold-deep`, ~1px, low opacity) give crystalline structure.
+- **Fill (tonal navy):** a vertical gradient, lighter near the shoulder (`#3a486a` →
+  `--ice-mid`) down to `--ice-deep` at the point, so the mass reads against the background without
+  being a hard cutout. A soft radial highlight near the shoulder catches light.
+- **The gold surface line is the rim.** A single SVG `<path>` (gold, non-scaling stroke, soft
+  glow) starts as a **straight horizontal waterline** resting low on the brand surface, then
+  **morphs into the jagged contour of the mass's top shoulder** and tracks it as the mass rises.
+  This is the page's defining gold gesture: surface → iceberg rim (full choreography in
+  `ANIMATION_SPEC.md` §4.2).
+- **No above-water tip, no hard drop shadows.** Depth comes from the tonal gradient, gold facets,
+  the rising motion, and atmosphere.
 
 ---
 
 ## 7. Iconography & misc
 
-- **Scroll cue:** a thin vertical line or small chevron in `--gold`, with an optional `13px`
-  uppercase Cinzel label (e.g. `SCROLL`). Gentle loop (see `ANIMATION_SPEC.md` §4.10). Visible
-  only at the very top; fades on first scroll.
-- **Footer label (optional):** one quiet line at the very bottom — e.g. `ICEBERG PARTNERS LLC ·
-  NEW YORK`, or a single contact link — in `--text-muted`, `12px`, tracked. Optionally one gold
-  hairline rule above it at low opacity. Nothing more.
+- **Scroll cue:** a thin vertical gold line with a `13px` uppercase Cinzel `SCROLL` label. Gentle
+  ambient bob on an inner element; the outer element's opacity is scroll-driven so it **reliably
+  fades out on first scroll** (see `ANIMATION_SPEC.md` §4.10). Visible only at the very top.
+- **Footer label:** one quiet line at the very bottom — currently `© 2026 · Iceberg Partners LLC`
+  — in `--text-muted`, `12px`, tracked, with a faint gold hairline rule above. Fades in at the
+  end. Nothing more.
 - **No logo mark beyond the wordmark lockup.** The lockup *is* the identity.
 - **No border-radius UI, no buttons, no cards.**
 
@@ -194,29 +194,28 @@ fade in only below the surface (timing in `ANIMATION_SPEC.md`).
 
 ## 8. Accessibility & quality floor
 
-- **Contrast:** meet WCAG **AA** for all text at every scroll position. Long body = ivory
-  (high contrast). Gold = wordmark + short emphasis only; verify against the live navy at its
-  position; use the soft radial darkening (§2.3) where needed.
+- **Contrast:** meet WCAG **AA** for all text at every scroll position. Long body = ivory (high
+  contrast). Gold = wordmark + surface line + short emphasis only.
 - **Reduced motion:** honor `prefers-reduced-motion: reduce` — the scroll-scrubbed camera,
-  parallax, drift, gleam, blur, and motes are disabled and replaced with simple fade-ins. Full
-  spec in `ANIMATION_SPEC.md` §8.
+  parallax, drift, gleam, blur, and the iceberg/surface-line are disabled and replaced with a
+  simple, naturally-scrolling layout that fades in via `IntersectionObserver`. Full spec in
+  `ANIMATION_SPEC.md` §8.
 - **Keyboard:** any interactive element (footer link) has a **visible focus ring** (`--gold`,
   2px, offset). Logical tab order.
-- **No-JS / progressive enhancement:** the mission statement is real DOM text and readable if
-  JS fails or is slow. Wordmark and mission are never image-only.
-- **Motion comfort:** the descent must feel smooth, not lurchy. No sudden large jumps; no
-  flashing. The threshold transition must not induce discomfort.
+- **No-JS / progressive enhancement:** the mission statement is real DOM text and readable if JS
+  fails or is slow. Wordmark and mission are never image-only.
+- **Motion comfort:** the descent is smooth, not lurchy. No sudden large jumps; no flashing.
 
 ---
 
 ## 9. Responsive
 
 - **Mobile (≤ 640px):**
-  - Reduce iceberg facet detail; keep the silhouette and proportion.
-  - Wordmark scales via the `clamp()` above; never crowd the edges (side padding holds).
-  - Shorten the scroll track (~`280vh`) so the reveal isn't a marathon of swipes.
-  - Reduce light-shaft and mote counts; consider dropping motes entirely.
-  - Mission column → `86vw`; sizes scale via clamp. Keep ivory body legible.
-  - Keep the four-beat arc intact — the gold waterline crossing must still read.
-- **Large screens (≥ 1440px):** composition stays centered with the capped mission column; let
-  the navy field breathe — do not stretch text full-width.
+  - Iceberg mass widens to `78vw`; silhouette and proportion preserved.
+  - Scroll track shortened to `~280vh` (vs `~360vh`) so the reveal isn't a marathon of swipes.
+  - **Performance:** Lenis disabled (native scroll); mission-text **blur dropped**; **grain
+    removed**; one light shaft dropped and shaft blur lightened; surface-line glow filter removed.
+  - Mission column → `86vw`; sizes scale via clamp. Ivory body stays legible.
+  - The four-beat arc stays intact — the surface-line → iceberg-rim morph still reads.
+- **Large screens (≥ 1440px):** composition stays centered with the capped mission column; the
+  navy field breathes — text never stretches full-width.
