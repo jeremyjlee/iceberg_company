@@ -114,7 +114,7 @@
      Subtle, gradient-lit low-poly facets + delicate gold etching, clipped inside
      the silhouette under the SVG's soft glow / deep-fade overlays → a luminous,
      detailed-but-restrained crystal (refined, not flat cartoon poly). */
-  var ICE_LIGHT = [80, 96, 132], ICE_DEEP = [11, 17, 33];   // refined navy range
+  var ICE_LIGHT = [70, 86, 120], ICE_DEEP = [11, 17, 33];   // deeper lit tone (less "white" edges)
   function lerpHex(a, b, t) {
     t = t < 0 ? 0 : t > 1 ? 1 : t;
     var h = "#", i, v;
@@ -161,20 +161,20 @@
 
     var etch = document.getElementById("bergEtch");
     if (etch) {
-      // highlight a FEW real mesh edges (through the actual C / mids / OUT vertices)
-      // so the gold lines coincide exactly with the facets — clean, not arbitrary.
+      // all interior lines are now ONE even, faint GOLD crystal mesh (no white seams,
+      // nothing standing out). Edges are real mesh edges so they align with the facets;
+      // the inner ring + outward spokes avoid a centre starburst.
       function poly(pts) {
-        var dd = "M" + pts[0][0].toFixed(1) + " " + pts[0][1].toFixed(1), k;
-        for (k = 1; k < pts.length; k++) dd += "L" + pts[k][0].toFixed(1) + " " + pts[k][1].toFixed(1);
+        var dd = "M" + pts[0][0].toFixed(1) + " " + pts[0][1].toFixed(1), q;
+        for (q = 1; q < pts.length; q++) dd += "L" + pts[q][0].toFixed(1) + " " + pts[q][1].toFixed(1);
         return dd;
       }
-      var ridge = poly([OUT[3], mids[3], C, mids[11], OUT[11]]);   // top → centre → bottom point
-      var dgL   = poly([OUT[1], mids[1], C]);                      // upper-left facet edge
-      var dgR   = poly([OUT[5], mids[5], C]);                      // upper-right facet edge
+      var mesh = "", k, m;
+      for (k = 0; k < n; k++) { m = (k + 1) % n; mesh += poly([mids[k], mids[m]]) + poly([mids[k], OUT[k]]); }
+      var ridge = poly([OUT[3], mids[3], C, mids[11], OUT[11]]);   // single faint central spine
       etch.innerHTML =
-        '<path d="' + ridge + '" fill="none" stroke="#cfc48c" stroke-width="0.7" stroke-opacity="0.3" stroke-linecap="round" stroke-linejoin="round"/>' +
-        '<path d="' + dgL + '" fill="none" stroke="#cfc48c" stroke-width="0.55" stroke-opacity="0.2" stroke-linecap="round" stroke-linejoin="round"/>' +
-        '<path d="' + dgR + '" fill="none" stroke="#cfc48c" stroke-width="0.55" stroke-opacity="0.2" stroke-linecap="round" stroke-linejoin="round"/>';
+        '<path d="' + mesh  + '" fill="none" stroke="#a99e69" stroke-width="0.4"  stroke-opacity="0.13" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '<path d="' + ridge + '" fill="none" stroke="#cfc48c" stroke-width="0.45" stroke-opacity="0.15" stroke-linecap="round" stroke-linejoin="round"/>';
     }
   })();
 
