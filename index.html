@@ -85,22 +85,21 @@
                   <stop offset="0" stop-color="#05080f" stop-opacity="0" />
                   <stop offset="1" stop-color="#04060d" stop-opacity="0.92" />
                 </linearGradient>
-                <clipPath id="bergClip">
-                  <path d="M34 28L150 12L214 34L300 8L386 30L470 18L528 44L512 150L538 286L470 430L386 560L300 678L236 556L150 432L70 300L40 168Z" />
-                </clipPath>
               </defs>
 
               <!-- base body -->
               <path d="M34 28L150 12L214 34L300 8L386 30L470 18L528 44L512 150L538 286L470 430L386 560L300 678L236 556L150 432L70 300L40 168Z"
                     fill="url(#massBody)" />
 
-              <!-- crystal interior, clipped to the silhouette -->
-              <g clip-path="url(#bergClip)">
-                <g id="bergFacets"></g>                 <!-- JS: subtle tonal facets + fine gold edges -->
-                <rect width="560" height="700" fill="url(#iceGlow)" />
-                <rect width="560" height="700" fill="url(#iceDeep)" />
-                <g id="bergEtch"></g>                   <!-- JS: delicate gold crack lines -->
-              </g>
+              <!-- crystal interior (no clip-path — overlays are silhouette-shaped fills,
+                   cheaper for Safari/mobile than a clipped layer that re-rasters on scale) -->
+              <g id="bergFacets"></g>                   <!-- JS: subtle tonal facets -->
+              <path d="M34 28L150 12L214 34L300 8L386 30L470 18L528 44L512 150L538 286L470 430L386 560L300 678L236 556L150 432L70 300L40 168Z"
+                    fill="url(#iceGlow)" />
+              <path d="M34 28L150 12L214 34L300 8L386 30L470 18L528 44L512 150L538 286L470 430L386 560L300 678L236 556L150 432L70 300L40 168Z"
+                    fill="url(#iceDeep)" />
+              <g id="bergEtch"></g>                     <!-- JS: delicate gold crack lines -->
+              <!-- (gold rim drawn uniformly in #surface) -->
 
               <!-- (the full gold rim is drawn uniformly in #surface: top by #surfacePath,
                    sides + bottom by #bergOutline — same weight) -->

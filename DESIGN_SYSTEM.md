@@ -170,7 +170,8 @@ not busy fills).
   - `massBody` — a navy body gradient, lit upper-left (`#37456c`) → deep core (`#0b1121`).
   - `iceGlow` — a soft radial of light *entering the ice* from the upper-left surface (low opacity).
   - `iceDeep` — a vertical darkening toward the submerged point (the pressure of the deep).
-  - All interior layers are `clip-path`'d to the silhouette so light never spills.
+  - The glow/deep overlays are **silhouette-shaped `<path>` fills** (no `clip-path` — a clipped
+    layer re-rasterises on every scale step in Safari/mobile; this is the cheaper equivalent).
 - **Lit facets (JS-generated, `#bergFacets`):** a low-poly mesh shaded by a **pseudo-3D light
   model** — the form bulges toward the viewer, so each facet catches or turns from the upper-left
   light → soft tonal navy planes (palette `ICE_LIGHT #7a8cb0` lit → `ICE_DEEP #0d1324`). Facets

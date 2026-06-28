@@ -165,7 +165,8 @@ body {
   z-index: 4;                 /* above the mass, below mission/wordmark */
   pointer-events: none;
   overflow: visible;
-  filter: drop-shadow(0 0 5px rgba(207, 196, 140, 0.45));   /* precious glow */
+  /* no drop-shadow filter: it re-rendered every frame on the morphing path and was
+     the main Safari/mobile scroll cost. The gold gradient stroke carries the sheen. */
 }
 
 /* =====================================================================
@@ -406,6 +407,10 @@ a, .footer__text { transition: color 200ms ease, opacity 200ms ease; }
   .berg--mass { width: 78vw; }
   .shaft--3 { display: none; }       /* thin the atmosphere on mobile */
   .shaft { filter: blur(14px); }     /* cheaper blur */
-  .grain { display: none; }          /* drop the blend-mode overlay (costly) */
-  .surface-line { filter: none; }    /* drop the glow filter on mobile */
 }
+
+/* touch devices (incl. iPad Safari, which is wider than 640px): drop the costly
+   full-screen blend-mode grain and the blurred light shafts — WebKit re-composites
+   them every frame while the scene animates. (JS adds .touch on coarse pointers.) */
+html.touch .grain  { display: none; }
+html.touch .shafts { display: none; }

@@ -93,6 +93,7 @@
   var BG_ZONES = [[0, 0.25], [0.25, 0.45], [0.45, 0.70], [0.70, 1.0]];
 
   var coarse = window.matchMedia("(pointer: coarse)").matches;   // touch / mobile
+  if (coarse) html.classList.add("touch");   // drop heavy blend/blur layers (CSS), see styles
 
   /* ---------- gold surface line: straight waterline -> iceberg rim ----------
      7 control points morph between a wide flat line (FLAT_*) and the iceberg's
@@ -201,7 +202,9 @@
 
       /* --- iceberg mass (§4.4): the reveal --- */
       var massY  = trackAnchors(p, [[0.30, 70], [0.40, 34], [0.62, 0], [0.88, -18]]);
-      var massSc = trackAnchors(p, [[0.30, 1], [0.40, 1.04], [0.62, 1.15], [0.88, 1.18]]);
+      // touch: no per-frame scale → the complex SVG isn't re-rasterised each frame
+      // (translate + opacity only = cheap compositor move). Desktop keeps the zoom.
+      var massSc = coarse ? 1 : trackAnchors(p, [[0.30, 1], [0.40, 1.04], [0.62, 1.15], [0.88, 1.18]]);
       var massOp = trackAnchors(p, [[0.30, 0], [0.40, 1], [0.62, 1], [0.88, 0.25], [1, 0.18]]);
       $mass.style.transform = "translateY(" + massY + "vh) scale(" + massSc.toFixed(3) + ")";
       $mass.style.opacity = massOp;

@@ -95,7 +95,9 @@ shoulder. The shoulder's live screen position is derived **analytically** from t
 - **Opacity:** `1` until `p=0.88`, then fades to ~`0.15` as the mass recedes behind the mission.
 - **Stroke:** `--gold`→`--gold-light` linear gradient, **`gradientUnits="userSpaceOnUse"`** (so a
   perfectly flat zero-height line still paints), transparent at both ends, `vector-effect:
-  non-scaling-stroke` (~1.5px), soft gold `drop-shadow` glow (removed on mobile).
+  non-scaling-stroke` (~1.5px). **No `drop-shadow` filter** — re-rendering a blur on the
+  per-frame-morphing path was the main Safari/mobile scroll cost; the gold gradient carries the
+  sheen instead.
 
 **One uniform contour.** `#surfacePath` draws only the **top shoulder**. The iceberg's **sides +
 bottom** are a second path `#bergOutline` in the *same* `#surface` SVG, computed from the same mass
@@ -208,8 +210,14 @@ from the mass's slower rise + scale and the atmosphere, not from obvious layer-s
   `--p` CSS var, and apply the handful of transforms/opacities. The scene block only runs when `p`
   actually changed.
 - `will-change: transform/opacity` on the few animated layers.
-- **Mobile:** Lenis off; grain off; one shaft dropped + lighter blur; surface-line glow off;
-  shorter track. Target **60fps**; no jank at the gleam or the morph.
+- **No SVG `clip-path`** on the iceberg, and **no `drop-shadow` filter** on the surface line —
+  both re-rasterise per frame in Safari/WebKit. Overlays are silhouette-shaped fills; the line
+  glow is dropped.
+- **Touch devices** (`pointer: coarse`, incl. iPad — JS adds `.touch`): the iceberg animates with
+  **translate + opacity only (no `scale()`)** so the complex SVG is composited, not re-rasterised
+  each frame; grain and light-shaft layers are removed; Lenis off (native scroll); shorter track.
+- **Mobile (≤640px):** also one shaft dropped + lighter blur, mass widened. Target **60fps**; no
+  jank at the gleam or the morph.
 
 ---
 
