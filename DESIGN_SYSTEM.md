@@ -160,22 +160,32 @@ fade in only below the surface (timing in `ANIMATION_SPEC.md` §4.8).
 
 ## 6. The iceberg (visual construction)
 
-- **Form:** layered inline SVG — one **mass** group (`viewBox 0 0 560 700`) for the submerged
-  bulk. The top rim is **not** drawn in the mass SVG; it is the separate **surface line** (§ below)
-  which morphs onto the mass's top edge and rides it up.
-- **Silhouette:** irregular and faceted — a wide jagged shoulder just below the surface, widening
-  then tapering to a deep point. Internal **facet lines in gold hairlines** (`--gold` /
-  `--gold-deep`, ~1px, low opacity) give crystalline structure.
-- **Fill (tonal navy):** a vertical gradient, lighter near the shoulder (`#3a486a` →
-  `--ice-mid`) down to `--ice-deep` at the point, so the mass reads against the background without
-  being a hard cutout. A soft radial highlight near the shoulder catches light.
-- **The gold surface line is the rim.** A single SVG `<path>` (gold, non-scaling stroke, soft
-  glow) starts as a **straight horizontal waterline** resting low on the brand surface, then
-  **morphs into the jagged contour of the mass's top shoulder** and tracks it as the mass rises.
-  This is the page's defining gold gesture: surface → iceberg rim (full choreography in
-  `ANIMATION_SPEC.md` §4.2).
-- **No above-water tip, no hard drop shadows.** Depth comes from the tonal gradient, gold facets,
-  the rising motion, and atmosphere.
+Rendered as a **refined, luminous crystal** — not flat poster-paint facets. The detail is built
+from soft light + delicate gold lines on deep navy, kept restrained (luxury = light and line,
+not busy fills).
+
+- **Form:** inline SVG **mass** (`viewBox 0 0 560 700`), an irregular faceted silhouette — wide
+  jagged shoulder just below the surface, widening then tapering to a deep point.
+- **Body & light (defs gradients):**
+  - `massBody` — a navy body gradient, lit upper-left (`#37456c`) → deep core (`#0b1121`).
+  - `iceGlow` — a soft radial of light *entering the ice* from the upper-left surface (low opacity).
+  - `iceDeep` — a vertical darkening toward the submerged point (the pressure of the deep).
+  - All interior layers are `clip-path`'d to the silhouette so light never spills.
+- **Lit facets (JS-generated, `#bergFacets`):** a low-poly mesh shaded by a **pseudo-3D light
+  model** — the form bulges toward the viewer, so each facet catches or turns from the upper-left
+  light → soft tonal navy planes (palette `ICE_LIGHT #7a8cb0` lit → `ICE_DEEP #0d1324`). Facets
+  carry **no gold web** (same-colour hairline only, to close seams); the soft glow/deep overlays
+  unify them into a luminous crystal.
+- **Interior gold lines (JS-generated, `#bergEtch`):** only **a few deliberate ridges** — a
+  central top→centre→bottom ridge plus two upper facet edges — drawn along the **actual mesh
+  vertices** (`C` / `mids` / `OUT`) so they coincide exactly with the facets (never arbitrary).
+- **One uniform gold outline.** The whole silhouette is a single gold line of **uniform weight**:
+  the **top shoulder** is the morphing `#surfacePath`, the **sides + bottom** are `#bergOutline` —
+  both drawn in the unscaled `#surface` SVG at the same `1.5px` non-scaling stroke / same gold
+  gradient, so they read as one continuous contour (no faint mismatched rim). See
+  `ANIMATION_SPEC.md` §4.2.
+- **No above-water tip, no hard drop shadows, no flat cartoon facets.** Depth comes from the
+  gradient light, the fine gold lines, the rising motion, and atmosphere.
 
 ---
 

@@ -97,6 +97,14 @@ shoulder. The shoulder's live screen position is derived **analytically** from t
   perfectly flat zero-height line still paints), transparent at both ends, `vector-effect:
   non-scaling-stroke` (~1.5px), soft gold `drop-shadow` glow (removed on mobile).
 
+**One uniform contour.** `#surfacePath` draws only the **top shoulder**. The iceberg's **sides +
+bottom** are a second path `#bergOutline` in the *same* `#surface` SVG, computed from the same mass
+transform (silhouette indices 6→0) at the **same 1.5px non-scaling stroke / same gold** — so the
+whole iceberg reads as one continuous gold line of uniform weight (not a faint mismatched rim).
+`#bergOutline` fades in over `p 0.40–0.54` (as the mass rises) and dims slightly past `0.90`. The
+mass SVG itself carries **no outline stroke**; its interior gold lines are a few mesh-aligned
+ridges (`DESIGN_SYSTEM.md` §6).
+
 ### 4.3 ~~Iceberg above-water tip~~ — **removed**
 There is no separate above-water tip. The surface *line* (§4.2) is the surface and becomes the
 rim.

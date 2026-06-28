@@ -148,11 +148,12 @@ animation:
 - **Proportion carries the metaphor:** only the very top of the mass is visible at the waterline
   at the moment of crossing; the enormous bulk rises below. There is no longer a distinct
   above-water tip — the *line* is the surface, and it becomes the mass's top edge.
-- **Rendered in brand, not literal white ice:** the iceberg is a **tonal navy form, slightly
-  lighter than the background**, defined by **fine gold hairline facets**, with the **gold
-  surface line** as its top rim. A dark, faceted mass drawn in gold light — unmistakably
-  navy + gold.
-- Exact tokens, faceting, gradients, and the surface-line morph: `DESIGN_SYSTEM.md` §6 +
+- **Rendered as a refined, luminous crystal — not flat poly:** a tonal navy body with soft light
+  *entering the ice* (gradient glow), deepening to a near-black core, lit low-poly facets (no gold
+  web), and **only a few deliberate gold ridge lines that sit exactly on the mesh edges**.
+- **One uniform gold outline:** the whole silhouette is a single continuous gold line of even
+  weight — the morphing line is the top, a matching `#bergOutline` draws the sides + bottom.
+- Exact palette, gradients, facet light model, and the surface-line morph: `DESIGN_SYSTEM.md` §6 +
   `ANIMATION_SPEC.md` §4.2 / §4.4.
 
 ---

@@ -62,7 +62,8 @@
   function el(name) { return document.querySelector('[data-el="' + name + '"]'); }
   var $mass      = el("mass");
   var $surface   = document.getElementById("surface");      // the gold line SVG
-  var $surfPath  = document.getElementById("surfacePath");  // its path
+  var $surfPath  = document.getElementById("surfacePath");  // its path (top, morphing)
+  var $bergOut   = document.getElementById("bergOutline");  // iceberg sides + bottom (same weight)
   var $wordmark  = el("wordmark");
   var $lockup    = document.querySelector(".lockup");
   var $eyebrow   = el("eyebrow");
@@ -101,6 +102,80 @@
   var FLAT_Y = 82;                             // %vh, calm surface — just above the scroll cue
   var SH_FX  = [0.061, 0.268, 0.382, 0.536, 0.689, 0.839, 0.943];
   var SH_FY  = [0.040, 0.017, 0.049, 0.011, 0.043, 0.026, 0.063];
+
+  // full iceberg silhouette (mass 560×700 viewBox); the side+bottom run (index 6→0)
+  // is drawn by #bergOutline at the same weight as the morphing top line.
+  var BERG_OUT = [[34,28],[150,12],[214,34],[300,8],[386,30],[470,18],[528,44],[512,150],
+                  [538,286],[470,430],[386,560],[300,678],[236,556],[150,432],[70,300],[40,168]];
+  var BERG_SIDE = [6,7,8,9,10,11,12,13,14,15,0];   // right shoulder → bottom → left shoulder
+
+  /* ---------- premium iceberg crystal (generated once) ----------
+     Subtle, gradient-lit low-poly facets + delicate gold etching, clipped inside
+     the silhouette under the SVG's soft glow / deep-fade overlays → a luminous,
+     detailed-but-restrained crystal (refined, not flat cartoon poly). */
+  var ICE_LIGHT = [80, 96, 132], ICE_DEEP = [11, 17, 33];   // refined navy range
+  function lerpHex(a, b, t) {
+    t = t < 0 ? 0 : t > 1 ? 1 : t;
+    var h = "#", i, v;
+    for (i = 0; i < 3; i++) { v = Math.round(a[i] + (b[i] - a[i]) * t); h += ("0" + v.toString(16)).slice(-2); }
+    return h;
+  }
+  function iceTone(t) { return lerpHex(ICE_LIGHT, ICE_DEEP, t); }
+  var BERG_LIGHT = (function () { var x=-0.42, y=-0.5, z=0.76, l=Math.sqrt(x*x+y*y+z*z); return [x/l, y/l, z/l]; })();
+
+  (function buildBerg() {
+    var facets = document.getElementById("bergFacets");
+    if (!facets) return;
+    var OUT = [[34,28],[150,12],[214,34],[300,8],[386,30],[470,18],[528,44],[512,150],
+               [538,286],[470,430],[386,560],[300,678],[236,556],[150,432],[70,300],[40,168]];
+    var C = [0, 0], i, n = OUT.length;
+    for (i = 0; i < n; i++) { C[0] += OUT[i][0]; C[1] += OUT[i][1]; }
+    C = [C[0] / n, C[1] / n];
+    var depth = 155, s = "";
+    function tri(a, az, b, bz, c, cz) {
+      var ux=b[0]-a[0], uy=b[1]-a[1], uz=bz-az, vx=c[0]-a[0], vy=c[1]-a[1], vz=cz-az;
+      var nx=uy*vz-uz*vy, ny=uz*vx-ux*vz, nz=ux*vy-uy*vx, L=Math.sqrt(nx*nx+ny*ny+nz*nz)||1;
+      nx/=L; ny/=L; nz/=L; if (nz < 0) { nx=-nx; ny=-ny; nz=-nz; }
+      var dd = nx*BERG_LIGHT[0] + ny*BERG_LIGHT[1] + nz*BERG_LIGHT[2];
+      var t = clamp01(0.5 - dd * 0.46);                     // lit tonal facets (no gold web)
+      var col = iceTone(t);
+      // fill + same-colour hairline closes seams without drawing a gold mesh
+      s += '<path d="M'+a[0].toFixed(1)+' '+a[1].toFixed(1)+'L'+b[0].toFixed(1)+' '+b[1].toFixed(1)+
+           'L'+c[0].toFixed(1)+' '+c[1].toFixed(1)+'Z" fill="'+col+'" fill-opacity="0.85" '+
+           'stroke="'+col+'" stroke-width="0.6" stroke-linejoin="round"/>';
+    }
+    // two-ring facets (centre fan + outer band), lit by the model above
+    var mids = OUT.map(function (v, k) {
+      var ff = 0.5 + (k % 2 ? 0.04 : -0.04);                // slight stagger to avoid a perfect fan
+      return [v[0] + (C[0] - v[0]) * ff, v[1] + (C[1] - v[1]) * ff];
+    });
+    var zc = depth, zm = depth * 0.5;
+    for (i = 0; i < n; i++) {
+      var j = (i + 1) % n;
+      tri(C, zc, mids[i], zm, mids[j], zm);
+      tri(mids[i], zm, OUT[i], 0, OUT[j], 0);
+      tri(mids[i], zm, OUT[j], 0, mids[j], zm);
+    }
+    facets.innerHTML = s;
+
+    var etch = document.getElementById("bergEtch");
+    if (etch) {
+      // highlight a FEW real mesh edges (through the actual C / mids / OUT vertices)
+      // so the gold lines coincide exactly with the facets — clean, not arbitrary.
+      function poly(pts) {
+        var dd = "M" + pts[0][0].toFixed(1) + " " + pts[0][1].toFixed(1), k;
+        for (k = 1; k < pts.length; k++) dd += "L" + pts[k][0].toFixed(1) + " " + pts[k][1].toFixed(1);
+        return dd;
+      }
+      var ridge = poly([OUT[3], mids[3], C, mids[11], OUT[11]]);   // top → centre → bottom point
+      var dgL   = poly([OUT[1], mids[1], C]);                      // upper-left facet edge
+      var dgR   = poly([OUT[5], mids[5], C]);                      // upper-right facet edge
+      etch.innerHTML =
+        '<path d="' + ridge + '" fill="none" stroke="#cfc48c" stroke-width="0.7" stroke-opacity="0.3" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '<path d="' + dgL + '" fill="none" stroke="#cfc48c" stroke-width="0.55" stroke-opacity="0.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '<path d="' + dgR + '" fill="none" stroke="#cfc48c" stroke-width="0.55" stroke-opacity="0.2" stroke-linecap="round" stroke-linejoin="round"/>';
+    }
+  })();
 
   /* =====================================================================
      The frame: compute p, drive everything
@@ -160,6 +235,18 @@
       }
       $surfPath.setAttribute("d", d);
       $surface.style.opacity = (1 - sub(p, 0.88, 1.0) * 0.85).toFixed(3);
+
+      /* --- iceberg sides + bottom outline: same uniform gold weight, derived from
+             the mass transform; fades in as the mass rises --- */
+      var od = "";
+      for (var oi = 0; oi < BERG_SIDE.length; oi++) {
+        var v = BERG_OUT[BERG_SIDE[oi]];
+        var ox = (bL + (v[0] / 560) * massW * massSc) / iw * 100;
+        var oy = (bT + (v[1] / 700) * massH * massSc) / vh * 100;
+        od += (oi ? "L" : "M") + ox.toFixed(2) + " " + oy.toFixed(2) + " ";
+      }
+      $bergOut.setAttribute("d", od);
+      $bergOut.style.opacity = (clamp01(sub(p, 0.40, 0.54)) * (1 - sub(p, 0.90, 1.0) * 0.8)).toFixed(3);
 
       /* --- wordmark: gleam, then drift-up dissolve (§4.5) --- */
       var gleam = easeInOut(sub(p, 0.18, 0.30));            // 0→1 sweep

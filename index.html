@@ -55,6 +55,10 @@
               <stop offset="1"    stop-color="#A99E69" stop-opacity="0" />
             </linearGradient>
           </defs>
+          <!-- iceberg sides + bottom: same uniform gold weight as the morphing top line -->
+          <path id="bergOutline" fill="none" stroke="url(#lineGrad)" stroke-width="1.5" opacity="0"
+                vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" />
+          <!-- the morphing spine: flat waterline → iceberg top shoulder -->
           <path id="surfacePath" fill="none" stroke="url(#lineGrad)" stroke-width="1.5"
                 vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
@@ -64,38 +68,42 @@
           <div class="anim" data-el="mass">
             <svg class="berg berg--mass" viewBox="0 0 560 700" fill="none" xmlns="http://www.w3.org/2000/svg">
               <defs>
-                <linearGradient id="massFill" x1="0" y1="0" x2="0.15" y2="1">
-                  <stop offset="0" stop-color="#33405f" />
-                  <stop offset="0.42" stop-color="#222d46" />
-                  <stop offset="1" stop-color="#161e33" />
+                <!-- refined navy body gradient (lit upper-left → deep core) -->
+                <linearGradient id="massBody" x1="0.30" y1="0" x2="0.12" y2="1">
+                  <stop offset="0" stop-color="#37456c" />
+                  <stop offset="0.45" stop-color="#212d4b" />
+                  <stop offset="1" stop-color="#0b1121" />
                 </linearGradient>
-                <radialGradient id="massGlow" cx="0.5" cy="0.05" r="0.9">
-                  <stop offset="0" stop-color="#4a587a" stop-opacity="0.55" />
-                  <stop offset="0.5" stop-color="#33405f" stop-opacity="0" />
+                <!-- soft luminous light entering the ice from the surface (upper-left) -->
+                <radialGradient id="iceGlow" cx="0.40" cy="0.10" r="0.78">
+                  <stop offset="0" stop-color="#8499c4" stop-opacity="0.55" />
+                  <stop offset="0.5" stop-color="#8499c4" stop-opacity="0.10" />
+                  <stop offset="1" stop-color="#8499c4" stop-opacity="0" />
                 </radialGradient>
+                <!-- pressure of the deep: darkening toward the submerged point -->
+                <linearGradient id="iceDeep" x1="0" y1="0.42" x2="0" y2="1">
+                  <stop offset="0" stop-color="#05080f" stop-opacity="0" />
+                  <stop offset="1" stop-color="#04060d" stop-opacity="0.92" />
+                </linearGradient>
+                <clipPath id="bergClip">
+                  <path d="M34 28L150 12L214 34L300 8L386 30L470 18L528 44L512 150L538 286L470 430L386 560L300 678L236 556L150 432L70 300L40 168Z" />
+                </clipPath>
               </defs>
-              <!-- submerged bulk: wide shoulder just below the surface, tapering to a deep point -->
-              <path d="M34 28
-                       L150 12 L214 34 L300 8 L386 30 L470 18 L528 44
-                       L512 150 L538 286 L470 430 L386 560 L300 678
-                       L236 556 L150 432 L70 300 L40 168 Z"
-                    fill="url(#massFill)" />
-              <path d="M34 28
-                       L150 12 L214 34 L300 8 L386 30 L470 18 L528 44
-                       L512 150 L538 286 L470 430 L386 560 L300 678
-                       L236 556 L150 432 L70 300 L40 168 Z"
-                    fill="url(#massGlow)" />
-              <!-- internal gold facet structure (hairlines) -->
-              <g stroke-linecap="round" fill="none">
-                <path d="M300 8 L300 678" stroke="#7c7345" stroke-width="1" opacity="0.35" />
-                <path d="M214 34 L300 360 L386 30" stroke="#a99e69" stroke-width="1" opacity="0.42" />
-                <path d="M40 168 L300 360 L538 286" stroke="#7c7345" stroke-width="1" opacity="0.34" />
-                <path d="M150 12 L236 556" stroke="#a99e69" stroke-width="0.75" opacity="0.3" />
-                <path d="M470 18 L386 560" stroke="#a99e69" stroke-width="0.75" opacity="0.3" />
-                <path d="M528 44 L300 360" stroke="#7c7345" stroke-width="0.75" opacity="0.28" />
-                <path d="M34 28 L300 360" stroke="#7c7345" stroke-width="0.75" opacity="0.28" />
+
+              <!-- base body -->
+              <path d="M34 28L150 12L214 34L300 8L386 30L470 18L528 44L512 150L538 286L470 430L386 560L300 678L236 556L150 432L70 300L40 168Z"
+                    fill="url(#massBody)" />
+
+              <!-- crystal interior, clipped to the silhouette -->
+              <g clip-path="url(#bergClip)">
+                <g id="bergFacets"></g>                 <!-- JS: subtle tonal facets + fine gold edges -->
+                <rect width="560" height="700" fill="url(#iceGlow)" />
+                <rect width="560" height="700" fill="url(#iceDeep)" />
+                <g id="bergEtch"></g>                   <!-- JS: delicate gold crack lines -->
               </g>
-              <!-- (gold rim is drawn by the morphing #surface line, which rides this shoulder) -->
+
+              <!-- (the full gold rim is drawn uniformly in #surface: top by #surfacePath,
+                   sides + bottom by #bergOutline — same weight) -->
             </svg>
           </div>
         </div>
